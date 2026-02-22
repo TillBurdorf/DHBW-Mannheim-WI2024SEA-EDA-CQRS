@@ -11,3 +11,6 @@
     - Die veröffentlichung der Updates wird durch eine Go-Routine (Thread) simuliert, welche für jede Bestellung gestartet wird
 - das Kassenpersonal ist das Read Model, welches Statusupdates zum Kaffee geben kann und intern eine Map mit dem aktuellen Status hat
 -> optimiertes Reading durch die schnelle Map
+
+
+Falls beim Ausführen Probleme auftreten, enthält der folgende Link eine kurze Demo: https://youtu.be/oUs_92HdHyA
