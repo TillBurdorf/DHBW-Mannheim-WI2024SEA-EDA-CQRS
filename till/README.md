@@ -4,7 +4,7 @@
 3. Jetzt kannst du einen Kaffee bestellen und nach der Bestellung den Bestellstatus abrufen
 
 # EDA + CQRS
-- die Terminanwendung sendet ein Event an die MQTT-Topic order/create wenn eine Bestellung erstellt wird
+- die Terminalanwendung sendet ein Event an die MQTT-Topic order/create wenn eine Bestellung erstellt wird
 - der Barista hört auf diese Topic und übernimmt die Write Commands
 - Bestellungen werden in orders gespeichert, was die Datenbank simulieren soll
 - Updates für das Read Model werden auf der Topic order/state veröffentlicht
