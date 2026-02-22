@@ -7,20 +7,26 @@ import (
 )
 
 type CoffeeOrderCreated struct {
-	OrderID string `json:"order_id"`
+	OrderID int    `json:"order_id"`
 	Name    string `json:"name"`
 	Drink   string `json:"drink"`
 	Size    string `json:"size"`
 }
 
-type CoffeeOrderFinished struct {
-	OrderID  int  `json:"order_id"`
-	Finished bool `json:"finished"`
+type CoffeeOrderStatus struct {
+	OrderID int    `json:"order_id"`
+	Name    string `json:"name"`
+	Status  string `json:"status"`
 }
 
 type BrokerUtil struct {
 	mqttClient mqtt.Client
 }
+
+const (
+	TOPIC_ORDER_CREATE string = "order/create"
+	TOPIC_ORDER_STATE  string = "order/status"
+)
 
 func NewBrokerUtil(url string, clientID string, user string, password string) (*BrokerUtil, error) {
 	opts := mqtt.NewClientOptions()
@@ -38,13 +44,12 @@ func NewBrokerUtil(url string, clientID string, user string, password string) (*
 	return &BrokerUtil{mqttClient: client}, nil
 }
 
-func (b *BrokerUtil) SubscribeTopic(topic string, message_callback mqtt.MessageHandler, name string) {
-	token := b.mqttClient.Subscribe(topic, 1, nil)
+func (b *BrokerUtil) SubscribeTopic(topic string, message_callback mqtt.MessageHandler) {
+	token := b.mqttClient.Subscribe(topic, 1, message_callback)
 	token.Wait()
 	if token.Error() != nil {
 		fmt.Printf("Fehler! Topic %s nicht subscribed! Fehler: %s", topic, token.Error())
 	}
-	fmt.Printf("Erfolgreich %s subscribed! von %v", topic, name)
 }
 
 func (b *BrokerUtil) PublishEvent(topic string, msg string) {
