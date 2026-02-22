@@ -73,12 +73,3 @@ func (b *Barista) publishStatus(status broker.CoffeeOrderStatus) {
 	}
 	b.broker.PublishEvent(broker.TOPIC_ORDER_STATE, string(payload))
 }
-
-func SendToWork() {
-	_, err := NewBarista()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	select {}
-}
