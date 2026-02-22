@@ -1,0 +1,13 @@
+# Getting Started
+1. Verwende die Docker Compose Datei, um einen RabbitMQ Broker zu starten
+2. Starte die Terminalanwendung mit `go run producer.go`
+3. Jetzt kannst du einen Kaffee bestellen und nach der Bestellung den Bestellstatus abrufen
+
+# EDA + CQRS
+- Allgemein: Der Barista läuft als Go-Routine (Thread) und arbeitet im Hintergrund während das Kassenpersonal in der main instanziiert wird
+- die Terminanwendung sendet ein Event an die MQTT-Topic order/create wenn eine Bestellung erstellt wird
+- der Barista hört auf diese Topic und übernimmt die Write Commands
+- Bestellungen werden in orders gespeichert, was die Datenbank simulieren soll
+- Updates für das Read Model werden auf der Topic order/state veröffentlicht
+- das Kassenpersonal ist das Read Model, welches Statusupdates zum Kaffee geben kann und intern eine Map mit dem aktuellen Status hat
+-> optimiertes Reading durch die schnelle Map

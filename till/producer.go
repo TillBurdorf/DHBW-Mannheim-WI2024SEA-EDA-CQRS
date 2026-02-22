@@ -19,12 +19,14 @@ const (
 )
 
 func main() {
-	go consumer_write.SendToWork()
+	_, err := consumer_write.NewBarista()
+	k, err := consumer_read.NewKassenpersonal()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	statusChan := make(chan map[int]string, 1)
-	go consumer_read.SendToWork(statusChan)
-
-	brokerUtil, err := broker.NewBrokerUtil("tcp://localhost:1883", "producer", "user", "password")
+	broker_util, err := broker.NewBrokerUtil("tcp://localhost:1883", "producer", "user", "password")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -40,7 +42,7 @@ func main() {
 			"4": "Americano",
 		}
 
-		var choice, drink, size, name, orderID string
+		var choice, drink, size, name, order_id string
 
 		fmt.Printf("Hallo! Wähle bitte eine Option:\n\n(1) Neue Bestellung\n(2) Bestellstatus abrufen\n(0) Beenden\n\nEingabe: ")
 		fmt.Scan(&choice)
@@ -81,39 +83,29 @@ func main() {
 				return
 			}
 
-			brokerUtil.PublishEvent(broker.TOPIC_ORDER_CREATE, string(payload))
+			broker_util.PublishEvent(broker.TOPIC_ORDER_CREATE, string(payload))
 
 		case "2":
 			fmt.Printf("Gebe deine Bestellnummer ein: ")
-			fmt.Scan(&orderID)
-			id, err := strconv.Atoi(orderID)
+			fmt.Scan(&order_id)
+			id, err := strconv.Atoi(order_id)
 			if err != nil {
-				fmt.Println("Ungülrige Bestellnummer")
+				fmt.Println("Ungültige Bestellnummer")
 			}
-			select {
-			case status := <-statusChan:
-				currentStatus := status[id]
-				statusColor := ColorReset
-
-				switch currentStatus {
-				case "Abholbereit":
-					statusColor = ColorGreen
-				case "In Zubereitung", "Eingegangen":
-					statusColor = ColorYellow
-				default:
-					statusColor = ColorCyan
-				}
-				fmt.Println("---------------------------------")
-				fmt.Println("Dein Bestellstatus:")
-				fmt.Printf("Status: %s%v%s\n", statusColor, status[id], ColorReset)
-				fmt.Println("---------------------------------")
-			default:
-				fmt.Println("-------------------------------------------------------")
-				fmt.Println("Dein Bestellstatus:")
-				fmt.Println("\nAktuell gibt es kein neues Status-Update vom Barista.")
-				fmt.Println("-------------------------------------------------------")
-
+			status, err := k.GetStatus(id)
+			if err != nil {
+				fmt.Println(err)
 			}
+			fmt.Println("---------------------------------")
+			fmt.Println("Dein Bestellstatus:")
+			fmt.Printf("Status: %v\n", status)
+			fmt.Println("---------------------------------")
+		default:
+			fmt.Println("-------------------------------------------------------")
+			fmt.Println("Dein Bestellstatus:")
+			fmt.Println("\nAktuell gibt es kein neues Status-Update vom Barista.")
+			fmt.Println("-------------------------------------------------------")
+
 		}
 	}
 }

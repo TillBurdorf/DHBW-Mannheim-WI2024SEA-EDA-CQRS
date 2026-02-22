@@ -41,11 +41,15 @@ func (b *Barista) onOrderCreated(_ mqtt.Client, msg mqtt.Message) {
 	}
 
 	b.orders = append(b.orders, coffe_order_created_event)
+	go b.giveUpdates(coffe_order_created_event)
+}
 
+func (b *Barista) giveUpdates(coffe_order_created_event broker.CoffeeOrderCreated) {
 	// Simuliere Bestellungseingang
 	status := broker.CoffeeOrderStatus{
-		Name:   coffe_order_created_event.Name,
-		Status: "Eingegangen",
+		OrderID: coffe_order_created_event.OrderID,
+		Name:    coffe_order_created_event.Name,
+		Status:  "Eingegangen",
 	}
 	b.publishStatus(status)
 	time.Sleep(time.Second * 10)
